@@ -13,6 +13,16 @@ const VideoPlayer = ({ src, isActive = true, preloadNext = false }) => {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  // Format time in MM:SS
+  const formatTime = (timeInSeconds) => {
+    if (isNaN(timeInSeconds) || timeInSeconds === 0) return '00:00';
+    const m = Math.floor(timeInSeconds / 60);
+    const s = Math.floor(timeInSeconds % 60);
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   // Manage src based on active state to avoid all videos loading simultaneously
   useEffect(() => {
@@ -65,7 +75,7 @@ const VideoPlayer = ({ src, isActive = true, preloadNext = false }) => {
   };
 
   return (
-    <div className="relative w-full h-full cursor-pointer" onClick={togglePlay}>
+    <div className="relative w-full h-full cursor-pointer group" onClick={togglePlay}>
       <video
         ref={videoRef}
         className="w-full h-full object-contain"
@@ -73,6 +83,16 @@ const VideoPlayer = ({ src, isActive = true, preloadNext = false }) => {
         playsInline
         muted={isMuted}
         preload={isActive ? 'auto' : preloadNext ? 'metadata' : 'none'}
+        onTimeUpdate={() => {
+          if (videoRef.current) {
+            setCurrentTime(videoRef.current.currentTime);
+          }
+        }}
+        onLoadedMetadata={() => {
+          if (videoRef.current) {
+            setDuration(videoRef.current.duration);
+          }
+        }}
       />
 
       {/* Mute toggle button */}
@@ -95,6 +115,40 @@ const VideoPlayer = ({ src, isActive = true, preloadNext = false }) => {
           </div>
         </div>
       )}
+
+      {/* Progress Bar & Time - Shows on hover or always if paused */}
+      <div 
+        className={`absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 z-20 ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}
+        onClick={(e) => e.stopPropagation()} // Prevent toggling play/pause when interacting with controls
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-medium text-white/90 font-mono w-10 text-right">
+            {formatTime(currentTime)}
+          </span>
+          
+          <input 
+            type="range"
+            min="0"
+            max={duration || 100}
+            value={currentTime}
+            onChange={(e) => {
+              const newTime = parseFloat(e.target.value);
+              setCurrentTime(newTime);
+              if (videoRef.current) {
+                videoRef.current.currentTime = newTime;
+              }
+            }}
+            className="flex-1 h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-cyan hover:h-2 transition-all"
+            style={{
+              background: `linear-gradient(to right, #00f0ff ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.2) ${(currentTime / (duration || 1)) * 100}%)`
+            }}
+          />
+          
+          <span className="text-xs font-medium text-white/90 font-mono w-10">
+            {formatTime(duration)}
+          </span>
+        </div>
+      </div>
     </div>
   );
 };
