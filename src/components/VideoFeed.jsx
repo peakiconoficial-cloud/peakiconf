@@ -28,26 +28,29 @@ const VideoFeed = () => {
     }
   }, [selectedIndex]);
 
-  // Track which slide is currently visible using IntersectionObserver
+  // Track which slide is currently visible using IntersectionObserver on slides
   useEffect(() => {
     if (selectedIndex === null || !scrollContainerRef.current) return;
-    const container = scrollContainerRef.current;
-    
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Using dataset index ensures we get the exact index even if DOM is fast
-            const index = Number(entry.target.dataset.index);
-            setCurrentIndex(index);
-          }
-        });
-      },
-      { root: container, threshold: 0.51 } // Trigger precisely when more than half is visible
-    );
 
-    Array.from(container.children).forEach((child) => observer.observe(child));
-    return () => observer.disconnect();
+    const container = scrollContainerRef.current;
+    const observers = [];
+
+    Array.from(container.children).forEach((child, index) => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setCurrentIndex(index);
+            }
+          });
+        },
+        { root: container, threshold: 0.6 }
+      );
+      observer.observe(child);
+      observers.push(observer);
+    });
+
+    return () => observers.forEach((obs) => obs.disconnect());
   }, [selectedIndex, videos]);
 
   useEffect(() => {
@@ -86,7 +89,7 @@ const VideoFeed = () => {
           className="absolute top-4 left-4 p-2 bg-black/60 text-white rounded-full z-20 backdrop-blur border border-white/10"
           onClick={() => setSelectedIndex(null)}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
         </button>
 
         <PlaylistModal
@@ -104,20 +107,27 @@ const VideoFeed = () => {
             const isActive = index === currentIndex;
             const isNext = index === currentIndex + 1;
             const isPrev = index === currentIndex - 1;
+            const inWindow = isActive || isNext || isPrev;
+
             return (
               <div
                 key={video.id}
-                data-index={index}
                 className="h-full w-full snap-start snap-always relative flex items-center justify-center bg-black shrink-0"
               >
-                {/* Virtual windowing using VideoPlayer's native 'poster' and 'isActive' prop.
-                    This prevents DOM unmounting shifts while keeping memory/network footprint low. */}
-                <VideoPlayer
-                  src={getProxyUrl(video.direct_url)}
-                  poster={getVideoThumbnail(video.direct_url)}
-                  isActive={isActive}
-                  preloadNext={isNext}
-                />
+                {inWindow ? (
+                  <VideoPlayer
+                    src={getProxyUrl(video.direct_url)}
+                    isActive={isActive}
+                    preloadNext={isNext}
+                  />
+                ) : (
+                  // Outside window: show thumbnail placeholder only
+                  <img
+                    src={getVideoThumbnail(video.direct_url)}
+                    alt="Video thumbnail"
+                    className="w-full h-full object-contain opacity-30"
+                  />
+                )}
 
                 {/* Album pill */}
                 <div className="absolute bottom-20 left-4 z-10 pointer-events-auto">
@@ -128,7 +138,7 @@ const VideoFeed = () => {
                     }}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-900/80 backdrop-blur-md border border-white/30 text-white text-sm font-bold hover:bg-primary/40 hover:text-primary transition-all shadow-lg"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
                     {video.album_title || 'View Album'}
                   </button>
                 </div>
@@ -142,7 +152,7 @@ const VideoFeed = () => {
                     }}
                     className="bg-surface backdrop-blur-md p-3 rounded-full border border-white/20 text-white hover:text-primary transition-colors"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" /></svg>
                   </button>
                 </div>
               </div>
@@ -172,12 +182,12 @@ const VideoFeed = () => {
           {/* Play icon badge */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/30">
             <div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center shadow-neon-pink">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3" /></svg>
             </div>
           </div>
           {/* Video icon top-right */}
           <div className="absolute top-1 right-1 p-1 bg-black/50 rounded">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 8-6 4 6 4V8Z" /><rect width="14" height="12" x="2" y="6" rx="2" ry="2" /></svg>
           </div>
         </div>
       ))}

@@ -7,9 +7,9 @@ import React, { useRef, useState, useEffect } from 'react';
  *  - src       : string  — proxy URL of the video
  *  - isActive  : boolean — when false, src is cleared and video is paused
  *                          to free the network connection (virtual windowing)
- *  - poster      : string  — thumbnail URL to show when unloaded
+ *  - preloadNext: boolean — when true, loads metadata only (for next slide prefetch)
  */
-const VideoPlayer = ({ src, isActive = true, preloadNext = false, poster = '' }) => {
+const VideoPlayer = ({ src, isActive = true, preloadNext = false }) => {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -61,7 +61,7 @@ const VideoPlayer = ({ src, isActive = true, preloadNext = false, poster = '' })
       videoRef.current.pause();
       setIsPlaying(false);
     } else {
-      videoRef.current.play().catch(() => {});
+      videoRef.current.play().catch(() => { });
       setIsPlaying(true);
     }
   };
@@ -82,7 +82,6 @@ const VideoPlayer = ({ src, isActive = true, preloadNext = false, poster = '' })
         loop
         playsInline
         muted={isMuted}
-        poster={poster}
         preload={isActive ? 'auto' : preloadNext ? 'metadata' : 'none'}
         onTimeUpdate={() => {
           if (videoRef.current) {
@@ -102,9 +101,9 @@ const VideoPlayer = ({ src, isActive = true, preloadNext = false, poster = '' })
         className="absolute top-4 right-4 p-2 rounded-full bg-black/40 text-white z-20 backdrop-blur-sm border border-white/10"
       >
         {isMuted ? (
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="11" y1="5" x2="11" y2="19"/><line x1="15" y1="9" x2="15" y2="15"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="11" y1="5" x2="11" y2="19" /><line x1="15" y1="9" x2="15" y2="15" /><line x1="19" y1="5" x2="19" y2="19" /></svg>
         ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" /></svg>
         )}
       </button>
 
@@ -112,13 +111,13 @@ const VideoPlayer = ({ src, isActive = true, preloadNext = false, poster = '' })
       {!isPlaying && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none z-10">
           <div className="w-16 h-16 rounded-full bg-primary/80 flex items-center justify-center backdrop-blur shadow-neon-pink">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3" /></svg>
           </div>
         </div>
       )}
 
       {/* Progress Bar & Time - Always visible for better mobile support */}
-      <div 
+      <div
         className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-20 opacity-100"
         onClick={(e) => e.stopPropagation()} // Prevent toggling play/pause when interacting with controls
       >
@@ -126,8 +125,8 @@ const VideoPlayer = ({ src, isActive = true, preloadNext = false, poster = '' })
           <span className="text-xs font-medium text-white/90 font-mono w-10 text-right">
             {formatTime(currentTime)}
           </span>
-          
-          <input 
+
+          <input
             type="range"
             min="0"
             max={duration || 100}
@@ -144,7 +143,7 @@ const VideoPlayer = ({ src, isActive = true, preloadNext = false, poster = '' })
               background: `linear-gradient(to right, #00f0ff ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.2) ${(currentTime / (duration || 1)) * 100}%)`
             }}
           />
-          
+
           <span className="text-xs font-medium text-white/90 font-mono w-10">
             {formatTime(duration)}
           </span>

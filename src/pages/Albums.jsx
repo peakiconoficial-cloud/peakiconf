@@ -135,20 +135,20 @@ const Albums = () => {
   if (fullScreenItemIndex !== null) {
     return (
       <div className="fixed inset-0 bg-black z-[100] flex flex-col">
-        <button 
+        <button
           className="absolute top-4 left-4 p-2 bg-black/50 text-white rounded-full z-10"
           onClick={() => setFullScreenItemIndex(null)}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
         </button>
-        
-        <PlaylistModal 
-          isOpen={isPlaylistModalOpen} 
-          onClose={() => setIsPlaylistModalOpen(false)} 
-          mediaItemId={currentMediaId} 
+
+        <PlaylistModal
+          isOpen={isPlaylistModalOpen}
+          onClose={() => setIsPlaylistModalOpen(false)}
+          mediaItemId={currentMediaId}
         />
 
-        <div 
+        <div
           ref={scrollContainerRef}
           className="h-full w-full snap-y snap-mandatory overflow-y-scroll hide-scrollbar"
         >
@@ -158,41 +158,41 @@ const Albums = () => {
             const isPrev = index === currentIndex - 1;
             const inWindow = isActive || isNext || isPrev;
             return (
-            <div key={item.id} className="h-full w-full snap-start relative flex items-center justify-center bg-black shrink-0">
-              {item.type === 'video' ? (
-                inWindow ? (
-                  <VideoPlayer
-                    src={getProxyUrl(item.direct_url)}
-                    isActive={isActive}
-                    preloadNext={isNext}
-                  />
+              <div key={item.id} className="h-full w-full snap-start relative flex items-center justify-center bg-black shrink-0">
+                {item.type === 'video' ? (
+                  inWindow ? (
+                    <VideoPlayer
+                      src={getProxyUrl(item.direct_url)}
+                      isActive={isActive}
+                      preloadNext={isNext}
+                    />
+                  ) : (
+                    <img
+                      src={getVideoThumbnail(item.direct_url)}
+                      alt="Video thumbnail"
+                      className="w-full h-full object-contain opacity-30"
+                    />
+                  )
                 ) : (
                   <img
-                    src={getVideoThumbnail(item.direct_url)}
-                    alt="Video thumbnail"
-                    className="w-full h-full object-contain opacity-30"
+                    src={getProxyUrl(item.direct_url)}
+                    alt="Full screen photo"
+                    className="max-w-full max-h-full object-contain"
                   />
-                )
-              ) : (
-                <img 
-                  src={getProxyUrl(item.direct_url)} 
-                  alt="Full screen photo" 
-                  className="max-w-full max-h-full object-contain"
-                />
-              )}
-              
-              <div className="absolute right-4 bottom-6 flex flex-col items-center gap-4 z-10">
-                <button 
-                  onClick={() => {
-                    setCurrentMediaId(item.id);
-                    setIsPlaylistModalOpen(true);
-                  }}
-                  className="bg-surface backdrop-blur-md p-3 rounded-full border border-white/20 text-white hover:text-cyan transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
-                </button>
+                )}
+
+                <div className="absolute right-4 bottom-6 flex flex-col items-center gap-4 z-10">
+                  <button
+                    onClick={() => {
+                      setCurrentMediaId(item.id);
+                      setIsPlaylistModalOpen(true);
+                    }}
+                    className="bg-surface backdrop-blur-md p-3 rounded-full border border-white/20 text-white hover:text-cyan transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" /></svg>
+                  </button>
+                </div>
               </div>
-            </div>
             );
           })}
         </div>
@@ -209,30 +209,29 @@ const Albums = () => {
       <div className="p-4 pb-24">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <button 
+          <button
             onClick={() => setSelectedAlbum(null)}
             className="p-2 glass-panel hover:text-primary transition-colors flex-shrink-0"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
           </button>
           <h2 className="text-xl font-bold glow-text-cyan flex-1 truncate">{selectedAlbum.title || 'Untitled Album'}</h2>
           <button
             onClick={(e) => saveAlbum(e, selectedAlbum.id)}
             disabled={savedAlbumIds.has(selectedAlbum.id)}
-            className={`flex items-center gap-2 px-4 py-2 text-sm rounded-full transition-all flex-shrink-0 ${
-              savedAlbumIds.has(selectedAlbum.id)
+            className={`flex items-center gap-2 px-4 py-2 text-sm rounded-full transition-all flex-shrink-0 ${savedAlbumIds.has(selectedAlbum.id)
                 ? 'bg-gray-800 text-gray-400 border border-gray-700 cursor-not-allowed'
                 : 'bg-cyan/20 text-cyan border border-cyan/50 hover:bg-cyan/40'
-            }`}
+              }`}
           >
             {savedAlbumIds.has(selectedAlbum.id) ? (
               <>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
                 Saved
               </>
             ) : (
               <>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" /></svg>
                 Save
               </>
             )}
@@ -249,17 +248,15 @@ const Albums = () => {
             <button
               key={tab.key}
               onClick={() => setAlbumFilter(tab.key)}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 border ${
-                albumFilter === tab.key
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 border ${albumFilter === tab.key
                   ? 'bg-primary/20 text-primary border-primary/50 shadow-neon-pink'
                   : 'bg-black/40 text-gray-400 border-white/10 hover:text-white'
-              }`}
+                }`}
             >
               {tab.label}
               {tab.count > 0 && (
-                <span className={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${
-                  albumFilter === tab.key ? 'bg-primary/30' : 'bg-white/10'
-                }`}>
+                <span className={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${albumFilter === tab.key ? 'bg-primary/30' : 'bg-white/10'
+                  }`}>
                   {tab.count}
                 </span>
               )}
@@ -272,27 +269,27 @@ const Albums = () => {
         ) : (
           <div className="grid grid-cols-3 gap-1">
             {filteredItems.map((item, index) => (
-              <div 
-                key={item.id} 
+              <div
+                key={item.id}
                 className="aspect-square bg-gray-900 cursor-pointer overflow-hidden group relative"
                 onClick={() => setFullScreenItemIndex(index)}
               >
                 {item.type === 'video' ? (
                   <div className="w-full h-full relative">
-                    <img 
+                    <img
                       src={getVideoThumbnail(item.direct_url)}
                       alt="Video thumbnail"
                       className="w-full h-full object-cover"
                       loading="lazy"
                     />
                     <div className="absolute top-1 right-1 p-1 bg-black/50 rounded">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 8-6 4 6 4V8Z" /><rect width="14" height="12" x="2" y="6" rx="2" ry="2" /></svg>
                     </div>
                   </div>
                 ) : (
-                  <img 
-                    src={getProxyUrl(item.direct_url)} 
-                    alt="Album item" 
+                  <img
+                    src={getProxyUrl(item.direct_url)}
+                    alt="Album item"
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     loading="lazy"
                   />
@@ -337,7 +334,7 @@ const Albums = () => {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-gray-600"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-gray-600"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
                 </div>
               )}
 
