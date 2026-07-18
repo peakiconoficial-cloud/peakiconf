@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    @apply h-[100dvh] w-full overflow-hidden fixed inset-0 m-0 p-0;
+  }
+  body {
+    @apply bg-background text-white font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-surface backdrop-blur-md border border-white/10 rounded-2xl;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .glow-text-pink {
+    text-shadow: 0 0 10px rgba(255, 30, 157, 0.7);
+  }
+  
+  .glow-text-cyan {
+    text-shadow: 0 0 10px rgba(0, 255, 247, 0.7);
+  }
+}
