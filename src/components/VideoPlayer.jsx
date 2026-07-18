@@ -116,9 +116,9 @@ const VideoPlayer = ({ src, isActive = true, preloadNext = false }) => {
         </div>
       )}
 
-      {/* Progress Bar & Time - Shows on hover or always if paused */}
+      {/* Progress Bar & Time - Always visible for better mobile support */}
       <div 
-        className={`absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 z-20 ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}
+        className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-20 opacity-100"
         onClick={(e) => e.stopPropagation()} // Prevent toggling play/pause when interacting with controls
       >
         <div className="flex items-center gap-3">
