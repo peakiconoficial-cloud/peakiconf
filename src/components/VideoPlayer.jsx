@@ -7,9 +7,9 @@ import React, { useRef, useState, useEffect } from 'react';
  *  - src       : string  — proxy URL of the video
  *  - isActive  : boolean — when false, src is cleared and video is paused
  *                          to free the network connection (virtual windowing)
- *  - preloadNext: boolean — when true, loads metadata only (for next slide prefetch)
+ *  - poster      : string  — thumbnail URL to show when unloaded
  */
-const VideoPlayer = ({ src, isActive = true, preloadNext = false }) => {
+const VideoPlayer = ({ src, isActive = true, preloadNext = false, poster = '' }) => {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -82,6 +82,7 @@ const VideoPlayer = ({ src, isActive = true, preloadNext = false }) => {
         loop
         playsInline
         muted={isMuted}
+        poster={poster}
         preload={isActive ? 'auto' : preloadNext ? 'metadata' : 'none'}
         onTimeUpdate={() => {
           if (videoRef.current) {

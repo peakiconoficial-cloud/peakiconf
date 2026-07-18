@@ -31,20 +31,21 @@ const ImageGrid = () => {
   useEffect(() => {
     if (selectedImageIndex === null || !scrollContainerRef.current) return;
     const container = scrollContainerRef.current;
-    const observers = [];
-    Array.from(container.children).forEach((child, index) => {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) setCurrentIndex(index);
-          });
-        },
-        { root: container, threshold: 0.6 }
-      );
-      observer.observe(child);
-      observers.push(observer);
-    });
-    return () => observers.forEach((obs) => obs.disconnect());
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number(entry.target.dataset.index);
+            setCurrentIndex(index);
+          }
+        });
+      },
+      { root: container, threshold: 0.51 }
+    );
+    
+    Array.from(container.children).forEach((child) => observer.observe(child));
+    return () => observer.disconnect();
   }, [selectedImageIndex, images]);
 
   useEffect(() => {
@@ -113,17 +114,14 @@ const ImageGrid = () => {
               const isNext = index === currentIndex + 1;
               const isPrev = index === currentIndex - 1;
               const inWindow = isActive || isNext || isPrev;
+              
               return (
-              <div key={image.id} className="h-full w-full snap-start snap-always relative flex items-center justify-center bg-black shrink-0">
-                {inWindow ? (
-                  <img 
-                    src={getProxyUrl(image.direct_url)} 
-                    alt="Full screen photo" 
-                    className="max-w-full max-h-full object-contain"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-black" />
-                )}
+              <div key={image.id} data-index={index} className="h-full w-full snap-start snap-always relative flex items-center justify-center bg-black shrink-0">
+                <img 
+                  src={inWindow ? getProxyUrl(image.direct_url) : ''} 
+                  alt="Full screen photo" 
+                  className={`max-w-full max-h-full object-contain transition-opacity duration-300 ${inWindow ? 'opacity-100' : 'opacity-0'}`}
+                />
                 
                 {/* Overlays */}
                 <div className="absolute bottom-6 left-4 z-10 pointer-events-auto">

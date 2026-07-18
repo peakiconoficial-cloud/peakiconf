@@ -28,29 +28,26 @@ const VideoFeed = () => {
     }
   }, [selectedIndex]);
 
-  // Track which slide is currently visible using IntersectionObserver on slides
+  // Track which slide is currently visible using IntersectionObserver
   useEffect(() => {
     if (selectedIndex === null || !scrollContainerRef.current) return;
-
     const container = scrollContainerRef.current;
-    const observers = [];
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Using dataset index ensures we get the exact index even if DOM is fast
+            const index = Number(entry.target.dataset.index);
+            setCurrentIndex(index);
+          }
+        });
+      },
+      { root: container, threshold: 0.51 } // Trigger precisely when more than half is visible
+    );
 
-    Array.from(container.children).forEach((child, index) => {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setCurrentIndex(index);
-            }
-          });
-        },
-        { root: container, threshold: 0.6 }
-      );
-      observer.observe(child);
-      observers.push(observer);
-    });
-
-    return () => observers.forEach((obs) => obs.disconnect());
+    Array.from(container.children).forEach((child) => observer.observe(child));
+    return () => observer.disconnect();
   }, [selectedIndex, videos]);
 
   useEffect(() => {
@@ -107,27 +104,20 @@ const VideoFeed = () => {
             const isActive = index === currentIndex;
             const isNext = index === currentIndex + 1;
             const isPrev = index === currentIndex - 1;
-            const inWindow = isActive || isNext || isPrev;
-
             return (
               <div
                 key={video.id}
+                data-index={index}
                 className="h-full w-full snap-start snap-always relative flex items-center justify-center bg-black shrink-0"
               >
-                {inWindow ? (
-                  <VideoPlayer
-                    src={getProxyUrl(video.direct_url)}
-                    isActive={isActive}
-                    preloadNext={isNext}
-                  />
-                ) : (
-                  // Outside window: show thumbnail placeholder only
-                  <img
-                    src={getVideoThumbnail(video.direct_url)}
-                    alt="Video thumbnail"
-                    className="w-full h-full object-contain opacity-30"
-                  />
-                )}
+                {/* Virtual windowing using VideoPlayer's native 'poster' and 'isActive' prop.
+                    This prevents DOM unmounting shifts while keeping memory/network footprint low. */}
+                <VideoPlayer
+                  src={getProxyUrl(video.direct_url)}
+                  poster={getVideoThumbnail(video.direct_url)}
+                  isActive={isActive}
+                  preloadNext={isNext}
+                />
 
                 {/* Album pill */}
                 <div className="absolute bottom-20 left-4 z-10 pointer-events-auto">
