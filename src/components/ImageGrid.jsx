@@ -114,7 +114,7 @@ const ImageGrid = () => {
               const isPrev = index === currentIndex - 1;
               const inWindow = isActive || isNext || isPrev;
               return (
-              <div key={image.id} className="h-full w-full snap-start relative flex items-center justify-center bg-black shrink-0">
+              <div key={image.id} className="h-full w-full snap-start snap-always relative flex items-center justify-center bg-black shrink-0">
                 {inWindow ? (
                   <img 
                     src={getProxyUrl(image.direct_url)} 

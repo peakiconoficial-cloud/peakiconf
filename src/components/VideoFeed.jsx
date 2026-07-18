@@ -112,7 +112,7 @@ const VideoFeed = () => {
             return (
               <div
                 key={video.id}
-                className="h-full w-full snap-start relative flex items-center justify-center bg-black shrink-0"
+                className="h-full w-full snap-start snap-always relative flex items-center justify-center bg-black shrink-0"
               >
                 {inWindow ? (
                   <VideoPlayer
